@@ -14,7 +14,15 @@ async function main() {
     process.exit(1)
   }
 
-  const pool = new pg.Pool({ connectionString: url, ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false })
+  const wantSsl =
+    /sslmode=require/i.test(url) ||
+    /ssl=true/i.test(url) ||
+    process.env.PGSSLMODE === "require"
+
+  const pool = new pg.Pool({
+    connectionString: url,
+    ssl: wantSsl ? { rejectUnauthorized: false } : false
+  })
 
   const schemaPath = path.join(__dirname, "schema.sql")
   const schemaSql = fs.readFileSync(schemaPath, "utf-8")
