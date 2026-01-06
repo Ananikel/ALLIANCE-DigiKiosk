@@ -21,10 +21,13 @@ if (!JWT_SECRET) {
   process.exit(1)
 }
 
+const pgSsl = String(process.env.PG_SSL || "false").toLowerCase() === "true"
+
 const pool = new pg.Pool({
   connectionString: DATABASE_URL,
-  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
+  ssl: pgSsl ? { rejectUnauthorized: false } : false
 })
+
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",").map(s => s.trim()) : true,
